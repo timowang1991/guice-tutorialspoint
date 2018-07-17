@@ -33,20 +33,27 @@ class SpellCheckerImpl implements SpellChecker {
 class TextEditorModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(SpellChecker.class).annotatedWith(Names.named("OpenOffice")).to(OpenOfficeWordSpellCheckerImpl.class);
+        bind(SpellChecker.class).annotatedWith(Names.named("OpenOffice")).to(WinWordSpellCheckerImpl.class);
+        bind(String.class).annotatedWith(Names.named("JDBC")).toInstance("jdbc:mysql://localhost:5326/emp");
     }
 }
 
 class TextEditor {
     private SpellChecker spellChecker;
+    private String dbUrl;
 
     @Inject
-    public TextEditor(@Named("OpenOffice") SpellChecker spellChecker) {
+    public TextEditor(@Named("OpenOffice") SpellChecker spellChecker, @Named("JDBC") String dbUrl) {
         this.spellChecker = spellChecker;
+        this.dbUrl = dbUrl;
     }
 
     public void makeSpellCheck() {
         spellChecker.checkSpelling();
+    }
+
+    public void makeConnection() {
+        System.out.println(dbUrl);
     }
 }
 
@@ -78,5 +85,6 @@ public class App
         Injector injector = Guice.createInjector(new TextEditorModule());
         TextEditor editor = injector.getInstance(TextEditor.class);
         editor.makeSpellCheck();
+        editor.makeConnection();
     }
 }
