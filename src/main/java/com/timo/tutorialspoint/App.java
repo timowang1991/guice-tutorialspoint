@@ -5,6 +5,7 @@ import com.google.inject.BindingAnnotation;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.google.inject.name.Names;
 import com.google.inject.name.Named;
@@ -50,15 +51,7 @@ class SpellCheckerImpl implements SpellChecker {
 class TextEditorModule extends AbstractModule {
     @Override
     protected void configure() {
-    }
-
-    @Provides
-    public SpellChecker provideSpellChecker() {
-        String dbUrl = "jdbc:mysql://localhost:5326/emp";
-        String user = "user";
-        int timeout = 100;
-        SpellChecker spellChecker = new SpellCheckerImpl(dbUrl, user, timeout);
-        return spellChecker;
+        bind(SpellChecker.class).toProvider(SpellCheckerProvider.class);
     }
 }
 
@@ -89,6 +82,16 @@ class OpenOfficeWordSpellCheckerImpl extends SpellCheckerImpl {
     @Override
     public void checkSpelling() {
         System.out.println("Inside OpenOfficeWordSpellCheckerImpl.checkSpelling.");
+    }
+}
+
+class SpellCheckerProvider implements Provider<SpellChecker> {
+    public SpellChecker get() {
+        String dbUrl = "jdbc:mysql://localhost:5326/emp";
+        String user = "user";
+        int timeout = 100;
+        SpellChecker spellChecker = new SpellCheckerImpl(dbUrl, user, timeout);
+        return spellChecker;
     }
 }
 
