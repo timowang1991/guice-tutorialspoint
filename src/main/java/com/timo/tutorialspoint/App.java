@@ -1,9 +1,21 @@
 package com.timo.tutorialspoint;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.BindingAnnotation;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+
+@BindingAnnotation @Target({ FIELD, PARAMETER, METHOD }) @Retention(RUNTIME)
+@interface WinWord {}
 
 interface SpellChecker {
     public void checkSpelling();
@@ -19,8 +31,7 @@ class SpellCheckerImpl implements SpellChecker {
 class TextEditorModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(SpellChecker.class).to(SpellCheckerImpl.class);
-        bind(SpellCheckerImpl.class).to(WinWordSpellCheckerImpl.class);
+        bind(SpellChecker.class).annotatedWith(WinWord.class).to(WinWordSpellCheckerImpl.class);
     }
 }
 
@@ -28,7 +39,7 @@ class TextEditor {
     private SpellChecker spellChecker;
 
     @Inject
-    public TextEditor(SpellChecker spellChecker) {
+    public TextEditor(@WinWord SpellChecker spellChecker) {
         this.spellChecker = spellChecker;
     }
 
